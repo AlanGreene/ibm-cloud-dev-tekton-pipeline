@@ -1,0 +1,44 @@
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: learn-good
+spec:
+  params:
+    - name: a
+    - name: b
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1alpha1
+      kind: PipelineRun
+      metadata:
+        generateName: sum-and-multiply-pipeline-run-
+      spec:
+        pipelineRef:
+          name: sum-and-multiply-pipeline
+        params:
+          - name: a
+            value: $(params.a)
+          - name: b
+            value: $(params.b)
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: learn-good
+spec:
+  params:
+    - name: a
+      value: "2"
+    - name: b
+      value: "4"
+---
+apiVersion: tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: learn-good
+spec:
+  triggers:
+    - binding:
+        name: learn-good
+      template:
+        name: learn-good

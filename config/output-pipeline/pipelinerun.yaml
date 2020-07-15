@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1alpha1
 kind: PipelineResource
 metadata:
-  name: skaffold-git
+  name: test-skaffold-git
 spec:
   type: git
   params:
@@ -14,7 +14,7 @@ spec:
 apiVersion: tekton.dev/v1alpha1
 kind: Task
 metadata:
-  name: create-file
+  name: test-create-file
 spec:
   inputs:
     resources:
@@ -39,7 +39,7 @@ spec:
 apiVersion: tekton.dev/v1alpha1
 kind: Task
 metadata:
-  name: check-stuff-file-exists
+  name: test-check-stuff-file-exists
 spec:
   inputs:
     resources:
@@ -61,7 +61,7 @@ spec:
 apiVersion: tekton.dev/v1alpha1
 kind: Pipeline
 metadata:
-  name: output-pipeline
+  name: test-output-pipeline
 spec:
   resources:
   - name: source-repo
@@ -69,7 +69,7 @@ spec:
   tasks:
   - name: first-create-file          # 1. create file
     taskRef:
-      name: create-file
+      name: test-create-file
     resources:
       inputs:
       - name: workspace
@@ -79,7 +79,7 @@ spec:
         resource: source-repo
   - name: then-check                 # 2.  check file exists
     taskRef:
-      name: check-stuff-file-exists
+      name: test-check-stuff-file-exists
     params:
     - name: args
       value:
@@ -94,13 +94,13 @@ spec:
 apiVersion: tekton.dev/v1alpha1
 kind: PipelineRun
 metadata:
-  name: output-pipeline-run
+  name: test-output-pipeline-run
 spec:
   pipelineRef:
-    name: output-pipeline
+    name: test-output-pipeline
   serviceAccount: 'default'
   resources:
   - name: source-repo
     resourceRef:
-      name: skaffold-git
+      name: test-skaffold-git
 

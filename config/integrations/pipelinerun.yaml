@@ -1,0 +1,68 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: test-integration
+spec:
+  params:
+    - name: integration
+  steps:
+    - name: echo-integration
+      image: ubuntu
+      script: |
+        #/bin/bash
+        echo "$(params.integration)"
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: integrations-pipeline
+spec:
+  params:
+    - name: integration
+  tasks:
+    - name: test-definitions-github-integration
+      taskRef:
+        name: test-integration
+      params:
+        - name: integration
+          value: $(params.integration)
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: integrations-pipeline-template
+spec:
+  params:
+    - name: definitions_repo
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        generateName: integrations-pr-
+      spec:
+        pipelineRef:
+            name: integrations-pipeline
+        serviceAccount: 'default'
+        params:
+          - name: integration
+            value: $(params.definitions_repo)
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: manual-integrations-pipeline-binding
+spec:
+  params:
+    - name: definitions_repo
+      value: $(properties.definitions_repo)
+---
+apiVersion: tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: manual-integrations-listener
+spec:
+  triggers:
+    - binding:
+        name: manual-integrations-pipeline-binding
+      template:
+        name: integrations-pipeline-template

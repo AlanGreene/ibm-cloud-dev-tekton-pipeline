@@ -1,0 +1,63 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: test-urls
+spec:
+  steps:
+    - name: echo-integration
+      image: ubuntu
+      env:
+        - name: PIPELINERUN_URL
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.annotations['devops.cloud.ibm.com/pipeline-run-url']
+        - name: PIPELINETASK_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.labels['tekton.dev/pipelineTask']
+      script: |
+        #/bin/bash
+        echo "PipelineRun URL: $PIPELINERUN_URL"
+        echo "pipelineTaskName: $PIPELINETASK_NAME"
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: urls-pipeline
+spec:
+  tasks:
+    - name: test-urls
+      taskRef:
+        name: test-urls
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: urls-pipeline-template
+spec:
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        generateName: urls-pr-
+      spec:
+        pipelineRef:
+            name: urls-pipeline
+        serviceAccount: 'default'
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: manual-urls-pipeline-binding
+spec:
+---
+apiVersion: tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: manual-urls-listener
+spec:
+  triggers:
+    - binding:
+        name: manual-urls-pipeline-binding
+      template:
+        name: urls-pipeline-template

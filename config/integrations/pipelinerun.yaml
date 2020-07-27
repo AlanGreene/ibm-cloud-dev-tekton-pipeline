@@ -54,7 +54,7 @@ metadata:
 spec:
   params:
     - name: definitions_repo
-      value: $(properties.definitions_repo)
+      value: $(params.definitions_repo)
 ---
 apiVersion: tekton.dev/v1alpha1
 kind: EventListener

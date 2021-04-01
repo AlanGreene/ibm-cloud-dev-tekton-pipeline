@@ -1,4 +1,4 @@
-apiVersion: tekton.dev/v1alpha1
+apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: task1
@@ -13,7 +13,7 @@ spec:
       command: ['bash']
       args: ['-c', 'for i in {1..2}; do echo GONLOGGIN 2 && sleep 1; done;']
 ---
-apiVersion: tekton.dev/v1alpha1
+apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: task2
@@ -28,7 +28,7 @@ spec:
       command: ['bash']
       args: ['-c', '[[ $((1 + RANDOM % 3)) == 1 ]] && echo Some logs || fail']
 ---
-apiVersion: tekton.dev/v1alpha1
+apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: xysk
@@ -43,7 +43,7 @@ spec:
       command: ['bash']
       args: ['-c', 'for i in {1..2}; do echo GONLOGGIN 2 && sleep 1; done;']
 ---
-apiVersion: tekton.dev/v1alpha1
+apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: aaab
@@ -58,7 +58,7 @@ spec:
       command: ['bash']
       args: ['-c', 'for i in {1..2}; do echo GONLOGGIN 2 && sleep 1; done;']
 ---
-apiVersion: tekton.dev/v1alpha1
+apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
   name: 999-working-logs-long

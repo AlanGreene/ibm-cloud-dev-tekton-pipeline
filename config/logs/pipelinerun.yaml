@@ -1,0 +1,44 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: logs-pipeline-template
+spec:
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        generateName: pending-run-
+      spec:
+        pipelineSpec:
+          tasks:
+          - name: atask
+            taskSpec:
+              steps:
+              - name: long-logs
+                image: ubuntu
+                script: |
+                  #!/usr/bin/env bash
+                  for i in {1..200}; do
+                    echo batch $i
+                    for j in {1..100}; do
+                      echo line $j
+                    done
+                    sleep 1
+                  done
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: manual-logs-pipeline-binding
+spec:
+---
+apiVersion: tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: manual-logs-listener
+spec:
+  triggers:
+    - binding:
+        name: manual-logs-pipeline-binding
+      template:
+        name: logs-pipeline-template

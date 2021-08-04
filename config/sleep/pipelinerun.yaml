@@ -1,0 +1,38 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: sleep-pipeline-template
+spec:
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        generateName: sleep-run-
+      spec:
+        pipelineSpec:
+          tasks:
+          - name: sleep
+            taskSpec:
+              steps:
+              - name: sleep
+                image: ubuntu
+                script: |
+                  #!/usr/bin/env bash
+                  sleep 100s
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: manual-sleep-pipeline-binding
+spec:
+---
+apiVersion: tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: manual-sleep-listener
+spec:
+  triggers:
+    - binding:
+        name: manual-sleep-pipeline-binding
+      template:
+        name: sleep-pipeline-template

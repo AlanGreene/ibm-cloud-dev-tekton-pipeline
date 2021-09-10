@@ -1,0 +1,114 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: echo-properties
+spec:
+  params:
+    - name: prop1
+    - name: prop2
+    - name: prop3
+    - name: prop4
+    - name: prop5
+    - name: prop6
+    - name: prop7
+  steps:
+    - name: show-props
+      image: ubuntu
+      script: |
+        #!/usr/bin/env bash
+        echo "Tekton Properties Test Run";
+        echo "==========================";
+        echo "prop1 = $(params.prop1)";
+        echo "prop2 = $(params.prop2)";
+        echo "prop3 = $(params.prop3)";
+        echo "prop4 = $(params.prop4)";
+        echo "prop5 = $(params.prop5)";
+        echo "prop6 = $(params.prop6)";
+        echo "prop7 = $(params.prop7)";
+        echo "=========================="
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: echo-properties-pipeline
+spec:
+  params:
+    - name: prop1
+    - name: prop2
+    - name: prop3
+    - name: prop4
+    - name: prop5
+    - name: prop6
+    - name: prop7
+  tasks:
+    - name: echo-task
+      taskRef:
+        name: echo-properties
+      params:
+        - name: prop1
+          value: $(params.prop1)
+        - name: prop2
+          value: $(params.prop2)
+        - name: prop3
+          value: $(params.prop3)
+        - name: prop4
+          value: $(params.prop4)
+        - name: prop5
+          value: $(params.prop5)
+        - name: prop6
+          value: $(params.prop6)
+        - name: prop7
+          value: $(params.prop7)
+---
+apiVersion: tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: echo-properties-listener
+spec:
+  triggers:
+    - binding:
+        name: echo-properties-pipeline-binding
+      template:
+        name: echo-properties-pipeline-template
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: echo-properties-pipeline-binding
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: echo-properties-pipeline-template
+spec:
+  params:
+    - name: prop1
+    - name: prop2
+    - name: prop3
+    - name: prop4
+    - name: prop5
+    - name: prop6
+    - name: prop7
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1alpha1
+      kind: PipelineRun
+      metadata:
+        generateName: echo-properties-pipeline-run-
+      spec:
+        pipelineRef:
+          name: echo-properties-pipeline
+        params:
+          - name: prop1
+            value: $(params.prop1)
+          - name: prop2
+            value: $(params.prop2)
+          - name: prop3
+            value: $(params.prop3)
+          - name: prop4
+            value: $(params.prop4)
+          - name: prop5
+            value: $(params.prop5)
+          - name: prop6
+            value: $(params.prop6)
+          - name: prop7
+            value: $(params.prop7)

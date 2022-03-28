@@ -1,0 +1,41 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: dot-progress-pipeline-template
+spec:
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        generateName: dot-progress-run-
+      spec:
+        pipelineSpec:
+          tasks:
+          - name: atask
+            taskSpec:
+              steps:
+              - name: test-dot-progress-log-line
+                image: ubuntu
+                script: |
+                  #!/usr/bin/env bash
+                  for i in {1..30}; do
+                    echo -n "."
+                    sleep 10s
+                  done
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: manual-dot-progress-pipeline-binding
+spec:
+---
+apiVersion: tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: manual-dot-progress-listener
+spec:
+  triggers:
+    - binding:
+        name: manual-dot-progress-pipeline-binding
+      template:
+        name: dot-progress-pipeline-template

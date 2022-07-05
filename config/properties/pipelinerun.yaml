@@ -14,6 +14,12 @@ spec:
   steps:
     - name: show-props
       image: ubuntu
+      env:
+        - name: SECURE_PROP_SSH_PRIV
+          valueFrom:
+            secretKeyRef:
+              name: secure-properties
+              key: ssh-priv
       script: |
         #!/usr/bin/env bash
         echo "Tekton Properties Test Run";
@@ -25,6 +31,7 @@ spec:
         echo "prop5 = $(params.prop5)";
         echo "prop6 = $(params.prop6)";
         echo "prop7 = $(params.prop7)";
+        echo "SECURE_PROP_SSH_PRIV = ${SECURE_PROP_SSH_PRIV}";
         echo "=========================="
 ---
 apiVersion: tekton.dev/v1beta1

@@ -1,0 +1,89 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: devsecops-debug-pipeline-template
+spec:
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        name: devsecops-debug
+      spec:
+        pipelineSpec:
+          tasks:
+            - name: echo
+              taskSpec:
+                volumes:
+                  - name: config
+                    emptyDir: {}
+                  - name: environment-properties
+                    configMap:
+                      name: environment-properties
+                  - name: secure-properties
+                    secret:
+                      secretName: secure-properties
+                steps:
+                  - name: echo
+                    image: icr.io/continuous-delivery/toolchains/devsecops/baseimage:2.60.2_commons-0.11.2@sha256:faa203760bec288cf47a46723a30228970c9b4c5f9a50aada9b724d5708d7dc7
+                    envFrom:
+                      - configMapRef:
+                          name: environment-properties
+                      - secretRef:
+                          name: secure-properties
+                    volumeMounts:
+                      - name: config
+                        mountPath: /config
+                      - name: environment-properties
+                        mountPath: /config/environment-properties
+                      - name: secure-properties
+                        mountPath: /config/secure-properties
+                    script: |
+                      #!/usr/bin/env bash
+                      . "/opt/one-pipeline/internal/pipeline/variables_config"
+
+                      set -x
+
+                      echo "### simple text properties"
+                      get_env testing
+                      echo
+
+                      echo "### secure properties"
+                      get_env secure-value
+                      get_env secure_from_kp_0
+                      get_env ssh-priv
+                      get_env ssh-priv-2
+                      echo
+
+                      echo "### repro 1"
+                      SSH_PRIVATE_KEY="$(get_env ssh-priv "")"
+                      if [ -n "$SSH_PRIVATE_KEY"]; then
+                        echo "do something…"
+                      fi
+                      echo
+
+                      echo "### repro 2"
+                      SSH_PRIVATE_KEY="$(get_env ssh-priv-2 "")"
+                      if [ -n "$SSH_PRIVATE_KEY"]; then
+                        echo "do something…"
+                      fi
+                      echo
+
+                      echo "### env"
+                      env
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: manual-devsecops-debug-pipeline-binding
+spec:
+---
+apiVersion: tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: manual-devsecops-debug-listener
+spec:
+  triggers:
+    - binding:
+        name: manual-devsecops-debug-pipeline-binding
+      template:
+        name: devsecops-debug-pipeline-template

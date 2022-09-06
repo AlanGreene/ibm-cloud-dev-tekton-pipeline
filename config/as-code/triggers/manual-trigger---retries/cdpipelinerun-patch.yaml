@@ -1,0 +1,9 @@
+## CDPipelineRun patch file (overlay): [Manual Trigger - Retries] : manual-trigger---retries/cdpipelinerun.yaml
+apiVersion: devops.cloud.ibm.com/v1alpha1
+kind: CDPipelineRun
+metadata:
+  name: atektoncd-dashboard-components-test
+spec:
+  eventListener: manual-retries-listener
+  eventPayload: '{}'
+  triggerName: manual-trigger---retries

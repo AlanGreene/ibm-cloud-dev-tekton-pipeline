@@ -1,0 +1,13 @@
+## Tekton CRD: cdpipelinerun.yaml:
+
+apiVersion: devops.cloud.ibm.com/v1alpha1
+kind: CDPipelineRun
+metadata:
+  name: atektoncd-dashboard-components-test
+spec:
+  secretStores: []
+  pipelineDefinitions:
+    - repoURL: 'https://github.com/AlanGreene/ibm-cloud-dev-tekton-pipeline.git'
+      repoBranch: main
+      repoPath: config/retries
+      repoType: GitHub

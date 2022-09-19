@@ -84,7 +84,7 @@ metadata:
   name: retries-pipeline-template
 spec:
   resourcetemplates:
-    - apiVersion: tekton.dev/v1alpha1
+    - apiVersion: tekton.dev/v1beta1
       kind: PipelineRun
       metadata:
         generateName: retries-cutting-down-trees-run

@@ -97,7 +97,7 @@ spec:
     - name: prop6
     - name: prop7
   resourcetemplates:
-    - apiVersion: tekton.dev/v1alpha1
+    - apiVersion: tekton.dev/v1beta1
       kind: PipelineRun
       metadata:
         generateName: echo-properties-pipeline-run-

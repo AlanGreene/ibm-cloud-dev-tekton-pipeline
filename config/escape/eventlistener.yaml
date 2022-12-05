@@ -1,0 +1,10 @@
+apiVersion: tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: pr-escape-listener
+spec:
+  triggers:
+    - binding:
+        name: pr-escape-binding
+      template:
+        name: pr-escape-template

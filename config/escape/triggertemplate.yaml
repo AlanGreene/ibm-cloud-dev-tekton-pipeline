@@ -1,0 +1,146 @@
+apiVersion: tekton.dev/v1beta1
+kind: TriggerTemplate
+metadata:
+  name: pr-escape-template
+spec:
+  params:
+    - name: head-branch
+      description: source branch of the PR
+    - name: head-sha
+      description: commit id
+    - name: head-repo
+      description: the name of the PR's repo source
+    - name: base-branch
+      description: target branch of the PR
+    - name: base-repo
+      description: the url of the PR's repo target
+    - name: base-repo-name
+      description: the name of the PR's repo target
+    - name: base-repo-owner
+      description: the owner of the PR's repo target
+    - name: pr-url
+      description: url of the PR
+    - name: commit-timestamp
+      description: the timestamp of when the commit pushed
+    - name: event-payload
+      description: event payload from the trigger webhook
+      default: ""
+    - name: repository-integration
+      description: the repo integration name
+    - name: artifactory-dockerconfigjson
+      description: dockerconfigjson for pullsecrets
+      default: "eyJhdXRocyI6e319" # ie. {"auths":{}} base64 encoded
+    - name: onepipeline-dockerconfigjson
+      description: dockerconfigjson for images used in .pipeline-config.yaml
+      default: "eyJhdXRocyI6e319" # ie. {"auths":{}} base64 encoded
+    - name: one-pipeline-dockerconfigjson
+      description: dockerconfigjson for images used in .pipeline-config.yaml
+      default: "eyJhdXRocyI6e319" # ie. {"auths":{}} base64 encoded
+    - name: pipeline-dockerconfigjson
+      description: dockerconfigjson for images used in .pipeline-config.yaml
+      default: "eyJhdXRocyI6e319" # ie. {"auths":{}} base64 encoded
+    - name: pipeline-debug
+      description: toggles debug mode for the pipeline
+    - name: compliance-baseimage
+      description: one-pipeline baseimage to run most of the built-in pipeline code
+      default: icr.io/continuous-delivery/toolchains/devsecops/baseimage:2.69.2_commons-0.18.0@sha256:d57e2448eaf8b222955b7a5a94990deb194dfca97fd5a2f748f8159b73396561
+    - name: pipeline-name
+      description: The name of the pipeline to run
+      default: pr-escape-pipeline
+    - name: dind-image
+      description: Base image to run sidecars
+      default: icr.io/continuous-delivery/toolchains/devsecops/docker:20.10.21-dind@sha256:7abbf564024e76ee5fc2b055b2a0790db660080bf35a7f827739df76c5622044
+    - name: detect-secrets-image
+      description: Base image to detect Secrets
+      default: icr.io/continuous-delivery/toolchains/devsecops/detect-secrets:0.13.1.ibm.55.dss@sha256:b932a494898b0db8e45de09a066c4dbfc780be4ee51797ae31b1c8934be8a386
+  resourcetemplates:
+    - apiVersion: v1
+      kind: Secret
+      data:
+        .dockerconfigjson: $(tt.params.artifactory-dockerconfigjson)
+      metadata:
+        name: artifactory-pull-secret
+      type: kubernetes.io/dockerconfigjson
+    - apiVersion: v1
+      kind: Secret
+      data:
+        .dockerconfigjson: $(tt.params.onepipeline-dockerconfigjson)
+      metadata:
+        name: onepipeline-pull-secret
+      type: kubernetes.io/dockerconfigjson
+    - apiVersion: v1
+      kind: Secret
+      data:
+        .dockerconfigjson: $(tt.params.one-pipeline-dockerconfigjson)
+      metadata:
+        name: one-pipeline-pull-secret
+      type: kubernetes.io/dockerconfigjson
+    - apiVersion: v1
+      kind: Secret
+      data:
+        .dockerconfigjson: $(tt.params.pipeline-dockerconfigjson)
+      metadata:
+        name: pipeline-pull-secret
+      type: kubernetes.io/dockerconfigjson
+    - apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: trigger
+        labels:
+          app.kubernetes.io/version: "1.0.0"
+      data:
+        payload.json: $(tt.params.event-payload)
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        name: pr-pipelinerun
+      spec:
+        pipelineRef:
+          name: $(tt.params.pipeline-name)
+        workspaces:
+          - name: artifacts
+            volumeClaimTemplate:
+              spec:
+                resources:
+                  requests:
+                    storage: 5Gi
+                volumeMode: Filesystem
+                accessModes:
+                  - ReadWriteOnce
+        params:
+          - name: head-branch
+            value: $(tt.params.head-branch)
+          - name: head-sha
+            value: $(tt.params.head-sha)
+          - name: head-repo
+            value: $(tt.params.head-repo)
+          - name: base-branch
+            value: $(tt.params.base-branch)
+          - name: base-repo
+            value: $(tt.params.base-repo)
+          - name: base-repo-name
+            value: $(tt.params.base-repo-name)
+          - name: base-repo-owner
+            value: $(tt.params.base-repo-owner)
+          - name: commit-timestamp
+            value: $(tt.params.commit-timestamp)
+          - name: pr-url
+            value: $(tt.params.pr-url)
+          - name: repository-integration
+            value: $(tt.params.repository-integration)
+          - name: pipeline-debug
+            value: $(tt.params.pipeline-debug)
+          - name: pipeline-name
+            value: $(tt.params.pipeline-name)
+          - name: compliance-baseimage
+            value: $(tt.params.compliance-baseimage)
+          - name: dind-image
+            value: $(tt.params.dind-image)
+          - name: detect-secrets-image
+            value: $(tt.params.detect-secrets-image)
+        podTemplate:
+          imagePullSecrets:
+            - name: artifactory-pull-secret
+            - name: onepipeline-pull-secret
+            - name: one-pipeline-pull-secret
+            - name: pipeline-pull-secret

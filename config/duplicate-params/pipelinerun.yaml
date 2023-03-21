@@ -1,0 +1,49 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: duplicate-params-pipeline-template
+spec:
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        name: pipelinerun-with-taskspec-to-echo-good-morning
+      spec:
+        pipelineSpec:
+          params:
+            - name: prop1
+              value: value1
+            - name: prop1
+              value: value2
+          tasks:
+            - name: echo-good-morning
+              taskSpec:
+                metadata:
+                  labels:
+                    app: "example"
+                params:
+                  - name: prop1
+                    type: string
+                steps:
+                  - name: echo
+                    image: ubuntu
+                    script: |
+                      #!/usr/bin/env bash
+                      echo "$(params.prop1)"
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: manual-duplicate-params-pipeline-binding
+spec:
+---
+apiVersion: tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: manual-duplicate-params-listener
+spec:
+  triggers:
+    - binding:
+        name: manual-duplicate-params-pipeline-binding
+      template:
+        name: duplicate-params-pipeline-template

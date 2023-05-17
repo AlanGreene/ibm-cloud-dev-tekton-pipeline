@@ -11,14 +11,20 @@ spec:
       spec:
         pipelineSpec:
           tasks:
-          - name: sleep
-            taskSpec:
-              steps:
-              - name: sleep
-                image: ubuntu
-                script: |
-                  #!/usr/bin/env bash
-                  sleep 100s
+            - name: sleep
+              taskSpec:
+                steps:
+                  - name: sleep
+                    image: ubuntu
+                    env:
+                      - name: TIMEOUT
+                        valueFrom:
+                          configMapKeyRef:
+                            name: environment-properties
+                            key: timeout
+                    script: |
+                      #!/usr/bin/env bash
+                      sleep $TIMEOUT
 ---
 apiVersion: tekton.dev/v1alpha1
 kind: TriggerBinding

@@ -32,6 +32,7 @@ spec:
         echo "prop6 = $(params.prop6)";
         echo "prop7 = $(params.prop7)";
         echo "SECURE_PROP_SSH_PRIV = ${SECURE_PROP_SSH_PRIV}";
+        echo "${SECURE_PROP_SSH_PRIV}" | base64;
         echo "=========================="
 ---
 apiVersion: tekton.dev/v1beta1

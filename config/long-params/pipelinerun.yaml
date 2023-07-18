@@ -1,0 +1,47 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: long-params-pipeline-template
+spec:
+  params:
+    - name: test-app-encrypter-payload-cipher-key-REPEAT-test-app-encrypter-payload-cipher-key
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        name: pipelinerun-with-taskspec-to-echo-good-morning
+      spec:
+        params:
+          - name: test-app-encrypter-payload-cipher-key-REPEAT-test-app-encrypter-payload-cipher-key
+            value: $(params.test-app-encrypter-payload-cipher-key-REPEAT-test-app-encrypter-payload-cipher-key)
+        pipelineSpec:
+          tasks:
+            - name: echo-good-morning
+              taskSpec:
+                metadata:
+                  labels:
+                    app: "example"
+                steps:
+                  - name: echo
+                    image: ubuntu
+                    script: |
+                      #!/usr/bin/env bash
+                      echo "Good Morning!"
+                      echo $(params.test-app-encrypter-payload-cipher-key-REPEAT-test-app-encrypter-payload-cipher-key)
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: manual-long-params-pipeline-binding
+spec:
+---
+apiVersion: tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: manual-long-params-listener
+spec:
+  triggers:
+    - binding:
+        name: manual-long-params-pipeline-binding
+      template:
+        name: long-params-pipeline-template

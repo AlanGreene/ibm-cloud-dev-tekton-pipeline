@@ -1,0 +1,44 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: run-name-param-pipeline-template
+spec:
+  params:
+    - name: run-name
+      default: pipelinerun-with-taskspec-to-echo-good-morning
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        name: $(tt.params.run-name)
+      spec:
+        pipelineSpec:
+          tasks:
+            - name: echo-good-morning
+              taskSpec:
+                metadata:
+                  labels:
+                    app: "example"
+                steps:
+                  - name: echo
+                    image: ubuntu
+                    script: |
+                      #!/usr/bin/env bash
+                      echo "Good Morning!"
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: manual-run-name-param-pipeline-binding
+spec:
+---
+apiVersion: tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: manual-run-name-param-listener
+spec:
+  triggers:
+    - binding:
+        name: manual-run-name-param-pipeline-binding
+      template:
+        name: run-name-param-pipeline-template

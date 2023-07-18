@@ -4,7 +4,7 @@ metadata:
   name: long-params-pipeline-template
 spec:
   params:
-    - name: test-app-encrypter-payload-cipher-key-REPEAT-test-app-encrypter-payload-cipher-key-EXTRA-and-add-some-more-to-really-push-the-length-and-see-how-it-gets-handled
+    - name: test-app-encrypter-payload-cipher-key-REPEAT-test-app-encrypter-payload-cipher-key-EXTRA-and-add-some-more-to-really-push-the-length-and-see-how-it-gets-handled-MORE-and-even-longer-again-to-find-a-limit-on-the-max-length-supported-by-the-system-and-see-how-it-handles-attempts-to-exceed-this
   resourcetemplates:
     - apiVersion: tekton.dev/v1beta1
       kind: PipelineRun
@@ -12,8 +12,8 @@ spec:
         name: pipelinerun-with-taskspec-to-echo-good-morning
       spec:
         params:
-          - name: test-app-encrypter-payload-cipher-key-REPEAT-test-app-encrypter-payload-cipher-key-EXTRA-and-add-some-more-to-really-push-the-length-and-see-how-it-gets-handled
-            value: $(params.test-app-encrypter-payload-cipher-key-REPEAT-test-app-encrypter-payload-cipher-key-EXTRA-and-add-some-more-to-really-push-the-length-and-see-how-it-gets-handled)
+          - name: test-app-encrypter-payload-cipher-key-REPEAT-test-app-encrypter-payload-cipher-key-EXTRA-and-add-some-more-to-really-push-the-length-and-see-how-it-gets-handled-MORE-and-even-longer-again-to-find-a-limit-on-the-max-length-supported-by-the-system-and-see-how-it-handles-attempts-to-exceed-this
+            value: $(params.test-app-encrypter-payload-cipher-key-REPEAT-test-app-encrypter-payload-cipher-key-EXTRA-and-add-some-more-to-really-push-the-length-and-see-how-it-gets-handled-MORE-and-even-longer-again-to-find-a-limit-on-the-max-length-supported-by-the-system-and-see-how-it-handles-attempts-to-exceed-this)
         pipelineSpec:
           tasks:
             - name: echo-good-morning
@@ -27,7 +27,7 @@ spec:
                     script: |
                       #!/usr/bin/env bash
                       echo "Good Morning!"
-                      echo $(params.test-app-encrypter-payload-cipher-key-REPEAT-test-app-encrypter-payload-cipher-key-EXTRA-and-add-some-more-to-really-push-the-length-and-see-how-it-gets-handled)
+                      echo $(params.test-app-encrypter-payload-cipher-key-REPEAT-test-app-encrypter-payload-cipher-key-EXTRA-and-add-some-more-to-really-push-the-length-and-see-how-it-gets-handled-MORE-and-even-longer-again-to-find-a-limit-on-the-max-length-supported-by-the-system-and-see-how-it-handles-attempts-to-exceed-this)
 ---
 apiVersion: tekton.dev/v1alpha1
 kind: TriggerBinding

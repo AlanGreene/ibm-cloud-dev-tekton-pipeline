@@ -26,7 +26,7 @@ spec:
           finally:
             - name: cleanup
               taskSpec:
-                step:
+                steps:
                   - name: echo
                     image: ubuntu
                     script: |

@@ -1,0 +1,63 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: matrix-pipeline-template
+spec:
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1
+      kind: PipelineRun
+      metadata:
+        generateName: matrixed-pr-with-retries-
+      spec:
+        pipelineSpec:
+          tasks:
+            - name: matrix-and-params-very-long-name-to-see-when-name-generated
+              matrix:
+                params:
+                  - name: platform
+                    value:
+                      - linux
+                      - mac
+                      - windows
+              params:
+                - name: pipelineTask-retries
+                  value: "$(context.pipelineTask.retries)"
+                - name: pipelineTask-retry-count
+                  value: "$(context.task.retry-count)"
+                - name: browser
+                  value: chrome
+              retries: 3
+              taskSpec:
+                params:
+                  - name: platform
+                  - name: browser
+                steps:
+                  - name: echo
+                    image: alpine
+                    script: |
+                      #!/usr/bin/env sh
+                      echo "$(params.platform) and $(params.browser)"
+
+                      if [ "$(params.pipelineTask-retry-count)" == "$(params.pipelineTask-retries)" ]; then
+                        echo "This is the last retry."
+                        exit 0
+                      fi
+                      echo "The PipelineTask has retried $(context.task.retry-count) times."
+                      exit 1
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: manual-matrix-pipeline-binding
+spec:
+---
+apiVersion: tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: manual-matrix-listener
+spec:
+  triggers:
+    - binding:
+        name: manual-matrix-pipeline-binding
+      template:
+        name: matrix-pipeline-template

@@ -1,24 +1,40 @@
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: test-integration
 spec:
   params:
     - name: integration
+    - name: dockerConfigPassword
+    - name: dockerConfigSecretValue
+    - name: dockerConfigSecretRef
   steps:
     - name: echo-integration
       image: ubuntu
       script: |
         #/bin/bash
+        echo params.integration:
         echo "$(params.integration)"
+        
+        echo params.dockerConfigPassword:
+        echo "$(params.dockerConfigPassword)" | base64
+
+        echo params.dockerConfigSecretValue:
+        echo "$(params.dockerConfigSecretValue)" | base64
+
+        echo params.dockerConfigSecretRef:
+        echo "$(params.dockerConfigSecretRef)" | base64
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: integrations-pipeline
 spec:
   params:
     - name: integration
+    - name: dockerConfigPassword
+    - name: dockerConfigSecretValue
+    - name: dockerConfigSecretRef
   tasks:
     - name: test-definitions-github-integration
       taskRef:
@@ -26,6 +42,12 @@ spec:
       params:
         - name: integration
           value: $(params.integration)
+        - name: dockerConfigPassword
+          value: $(params.dockerConfigPassword)
+        - name: dockerConfigSecretValue
+          value: $(params.dockerConfigSecretValue)
+        - name: dockerConfigSecretRef
+          value: $(params.dockerConfigSecretRef)
 ---
 apiVersion: tekton.dev/v1alpha1
 kind: TriggerTemplate
@@ -34,8 +56,11 @@ metadata:
 spec:
   params:
     - name: definitions_repo
+    - name: dockerConfigPassword
+    - name: dockerConfigSecretValue
+    - name: dockerConfigSecretRef
   resourcetemplates:
-    - apiVersion: tekton.dev/v1beta1
+    - apiVersion: tekton.dev/v1
       kind: PipelineRun
       metadata:
         generateName: integrations-pr-
@@ -46,6 +71,12 @@ spec:
         params:
           - name: integration
             value: $(params.definitions_repo)
+          - name: dockerConfigPassword
+            value: $(params.dockerConfigPassword)
+          - name: dockerConfigSecretValue
+            value: $(params.dockerConfigSecretValue)
+          - name: dockerConfigSecretRef
+            value: $(params.dockerConfigSecretRef)
 ---
 apiVersion: tekton.dev/v1alpha1
 kind: TriggerBinding
@@ -55,6 +86,12 @@ spec:
   params:
     - name: definitions_repo
       value: $(params.definitions_repo)
+    - name: dockerConfigPassword
+      value: $(params.dockerConfigPassword)
+    - name: dockerConfigSecretValue
+      value: $(params.dockerConfigSecretValue)
+    - name: dockerConfigSecretRef
+      value: $(params.dockerConfigSecretRef)
 ---
 apiVersion: tekton.dev/v1alpha1
 kind: EventListener

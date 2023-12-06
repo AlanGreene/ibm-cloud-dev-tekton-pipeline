@@ -1,0 +1,40 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: resolvers-git-pipeline-template
+spec:
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1
+      kind: PipelineRun
+      metadata:
+        name: pipelinerun-with-taskspec-to-echo-good-morning
+      spec:
+        pipelineSpec:
+          tasks:
+            - name: echo-good-morning
+              taskRef:
+                resolver: git
+                params:
+                - name: url
+                  value: https://github.com/AlanGreene/ibm-cloud-dev-tekton-pipeline.git
+                - name: revision
+                  value: main
+                - name: pathInRepo
+                  value: config/resolvers-git/resources/task.yaml
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: manual-resolvers-git-pipeline-binding
+spec:
+---
+apiVersion: tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: manual-resolvers-git-listener
+spec:
+  triggers:
+    - binding:
+        name: manual-resolvers-git-pipeline-binding
+      template:
+        name: resolvers-git-pipeline-template

@@ -1,0 +1,11 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: resolvers-git-task
+spec:
+  steps:
+    - name: echo
+      image: alpine
+      script: |
+        #!/usr/bin/env sh
+        echo Greetings from remote task

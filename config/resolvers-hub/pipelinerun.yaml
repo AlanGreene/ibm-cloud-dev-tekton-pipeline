@@ -1,0 +1,44 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: resolvers-hub-pipeline-template
+spec:
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        name: pipelinerun-with-taskspec-to-echo-good-morning
+      spec:
+        pipelineSpec:
+          tasks:
+            - name: echo-good-morning
+              taskRef:
+                resolver: hub
+                params:
+                - name: catalog
+                  value: tekton-catalog-tasks
+                - name: type
+                  value: artifact
+                - name: kind
+                  value: task
+                - name: name
+                  value: git-clone
+                - name: version
+                  value: "0.9"
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: manual-resolvers-hub-pipeline-binding
+spec:
+---
+apiVersion: tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: manual-resolvers-hub-listener
+spec:
+  triggers:
+    - binding:
+        name: manual-resolvers-hub-pipeline-binding
+      template:
+        name: resolvers-hub-pipeline-template

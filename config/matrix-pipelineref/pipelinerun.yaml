@@ -1,0 +1,58 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: matrix-pipelineref
+spec:
+  tasks:
+    - name: matrix-test
+      matrix:
+        params:
+          - name: platform
+            value:
+              - linux
+              - mac
+              - windows
+      params:
+        - name: browser
+          value: chrome
+      taskSpec:
+        params:
+          - name: platform
+          - name: browser
+        steps:
+          - name: echo
+            image: alpine
+            script: |
+              #!/usr/bin/env sh
+              echo "$(params.platform) and $(params.browser)"
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: matrix-pipelineref-template
+spec:
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1
+      kind: PipelineRun
+      metadata:
+        generateName: matrixed-pr-with-pipelineref-
+      spec:
+        pipelineRef:
+          name: matrix-pipelineref
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: manual-matrix-pipelineref-binding
+spec:
+---
+apiVersion: tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: manual-matrix-pipelineref-listener
+spec:
+  triggers:
+    - binding:
+        name: manual-matrix-pipelineref-binding
+      template:
+        name: matrix-pipelineref-template

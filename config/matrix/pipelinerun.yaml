@@ -21,9 +21,7 @@ spec:
                       - windows
               params:
                 - name: pipelineTask-retries
-                  value: "$(context.pipelineTask.retries)"
-                - name: pipelineTask-retry-count
-                  value: "$(context.task.retry-count)"
+                  value: $(context.pipelineTask.retries)
                 - name: browser
                   value: chrome
               retries: 3
@@ -31,6 +29,7 @@ spec:
                 params:
                   - name: platform
                   - name: browser
+                  - name: pipelineTask-retries
                 steps:
                   - name: echo
                     image: alpine
@@ -38,7 +37,7 @@ spec:
                       #!/usr/bin/env sh
                       echo "$(params.platform) and $(params.browser)"
 
-                      if [ "$(params.pipelineTask-retry-count)" == "$(params.pipelineTask-retries)" ]; then
+                      if [ "$(context.task.retry-count)" == "$(params.pipelineTask-retries)" ]; then
                         echo "This is the last retry."
                         exit 0
                       fi

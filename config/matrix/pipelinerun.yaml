@@ -12,6 +12,12 @@ spec:
         pipelineSpec:
           tasks:
             - name: matrix-and-params-very-long-name-to-see-when-name-generated
+              retries: 3
+              params:
+                - name: pipelineTask-retries
+                  value: $(context.pipelineTask.retries)
+                - name: browser
+                  value: chrome
               matrix:
                 params:
                   - name: platform
@@ -19,12 +25,6 @@ spec:
                       - linux
                       - mac
                       - windows
-              params:
-                - name: pipelineTask-retries
-                  value: $(context.pipelineTask.retries)
-                - name: browser
-                  value: chrome
-              retries: 3
               taskSpec:
                 params:
                   - name: platform
@@ -42,6 +42,30 @@ spec:
                         exit 0
                       fi
                       echo "The PipelineTask has retried $(context.task.retry-count) times."
+                      exit 1
+            - name: always-fail
+              retries: 1
+              params:
+                - name: browser
+                  value: chrome
+              matrix:
+                params:
+                  - name: platform
+                    value:
+                      - linux
+                      - mac
+                      - windows
+              taskSpec:
+                params:
+                  - name: platform
+                  - name: browser
+                steps:
+                  - name: echo
+                    image: alpine
+                    script: |
+                      #!/usr/bin/env sh
+                      echo "$(params.platform) and $(params.browser)"
+
                       exit 1
 ---
 apiVersion: tekton.dev/v1alpha1

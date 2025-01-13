@@ -25,6 +25,16 @@ spec:
                     done
                     sleep 1
                   done
+              - name: log-levels
+                image: ubuntu
+                script: |
+                  #!/usr/bin/env bash
+                  echo This is an undecorated log
+                  echo ::error::This is an error log
+                  echo ::warning::This is a warning log
+                  echo ::notice::This is a notice log
+                  echo ::info::This is an info log
+                  echo ::debug::This is a debug log
 ---
 apiVersion: tekton.dev/v1alpha1
 kind: TriggerBinding

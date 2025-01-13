@@ -25,6 +25,9 @@ spec:
                     done
                     sleep 1
                   done
+          - name: anothertask
+            taskSpec:
+              steps:
               - name: log-levels
                 image: ubuntu
                 script: |

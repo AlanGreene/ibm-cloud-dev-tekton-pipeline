@@ -19,10 +19,11 @@ spec:
                 script: |
                   #!/usr/bin/env bash
                   for i in {1..200}; do
-                    echo batch $i
+                    echo "::group::batch $i"
                     for j in {1..100}; do
                       echo line $j
                     done
+                    echo '::endgroup::'
                     sleep 1
                   done
           - name: anothertask

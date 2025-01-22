@@ -1,0 +1,39 @@
+apiVersion: tekton.dev/v1beta1
+kind: TriggerTemplate
+metadata:
+  name: webhook-binding-dots-template
+spec:
+  params:
+    - name: body-payload
+    - name: event-payload
+    - name: body-simple-param
+    - name: event-simple-param
+    - name: body-dot-param
+    - name: event-dot-param
+    - name: body-dot-param-brackets
+    - name: event-dot-param-brackets
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        name: webhook-pipelinerun
+      spec:
+        pipelineRef:
+          name: webhook-binding-dots-pipeline
+        params:
+          - name: body-payload
+            value: $(tt.params.body-payload)
+          - name: event-payload
+            value: $(tt.params.event-payload)
+          - name: body-simple-param
+            value: $(tt.params.body-simple-param)
+          - name: event-simple-param
+            value: $(tt.params.event-simple-param)
+          - name: body-dot-param
+            value: $(tt.params.body-dot-param)
+          - name: event-dot-param
+            value: $(tt.params.event-dot-param)
+          - name: body-dot-param-brackets
+            value: $(tt.params.body-dot-param-brackets)
+          - name: event-dot-param-brackets
+            value: $(tt.params.event-dot-param-brackets)

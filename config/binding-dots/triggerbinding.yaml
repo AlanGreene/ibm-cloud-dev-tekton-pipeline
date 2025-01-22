@@ -1,0 +1,22 @@
+apiVersion: tekton.dev/v1beta1
+kind: TriggerBinding
+metadata:
+  name: webhook-binding-dots-binding
+spec:
+  params:
+    - name: body-payload
+      value: $(body)
+    - name: event-payload
+      value: $(event)
+    - name: body-simple-param
+      value: $(body.simple-param)
+    - name: event-simple-param
+      value: $(event.simple-param)
+    - name: body-dot-param
+      value: $(body.dot\.param)
+    - name: event-dot-param
+      value: $(event.dot\.param)
+    - name: body-dot-param-brackets
+      value: $(body['dot.param'])
+    - name: event-dot-param-brackets
+      value: $(event['dot.param'])

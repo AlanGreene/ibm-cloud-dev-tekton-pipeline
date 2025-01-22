@@ -1,0 +1,10 @@
+apiVersion: tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: webhook-binding-dots-listener
+spec:
+  triggers:
+    - binding:
+        name: webhook-binding-dots-binding
+      template:
+        name: webhook-binding-dots-template

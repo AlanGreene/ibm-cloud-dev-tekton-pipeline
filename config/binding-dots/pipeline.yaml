@@ -1,0 +1,36 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: webhook-binding-dots-pipeline
+spec:
+  params:
+    - name: body-payload
+    - name: event-payload
+    - name: body-simple-param
+    - name: event-simple-param
+    - name: body-dot-param
+    - name: event-dot-param
+    - name: body-dot-param-brackets
+    - name: event-dot-param-brackets
+
+  tasks:
+    - name: code-pr-start
+      taskRef:
+        name: webhook-binding-dots-start
+      params:
+        - name: body-payload
+          value: $(params.body-payload)
+        - name: event-payload
+          value: $(params.event-payload)
+        - name: body-simple-param
+          value: $(params.body-simple-param)
+        - name: event-simple-param
+          value: $(params.event-simple-param)
+        - name: body-dot-param
+          value: $(params.body-dot-param)
+        - name: event-dot-param
+          value: $(params.event-dot-param)
+        - name: body-dot-param-brackets
+          value: $(params.body-dot-param-brackets)
+        - name: event-dot-param-brackets
+          value: $(params.event-dot-param-brackets)

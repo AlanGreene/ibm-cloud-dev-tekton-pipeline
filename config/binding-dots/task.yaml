@@ -1,0 +1,31 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: webhook-binding-dots-start
+spec:
+  params:
+    - name: body-payload
+    - name: event-payload
+    - name: body-simple-param
+    - name: event-simple-param
+    - name: body-dot-param
+    - name: event-dot-param
+    - name: body-dot-param-brackets
+    - name: event-dot-param-brackets
+
+  steps:
+
+    - name: start
+      image: ubuntu
+      script: |
+        #!/bin/bash
+        set -x
+
+        echo "$(params.body-payload)"
+        echo "$(params.event-payload)"
+        echo "$(params.body-simple-param)"
+        echo "$(params.event-simple-param)"
+        echo "$(params.body-dot-param)"
+        echo "$(params.event-dot-param)"
+        echo "$(params.body-dot-param-brackets)"
+        echo "$(params.event-dot-param-brackets)"

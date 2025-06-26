@@ -1,0 +1,41 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: kustomize-pipeline-template
+spec:
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        name: pipelinerun-with-taskspec-to-echo-good-morning
+      spec:
+        pipelineSpec:
+          tasks:
+            - name: echo-good-morning
+              taskSpec:
+                metadata:
+                  labels:
+                    app: "example"
+                steps:
+                  - name: echo
+                    image: ubuntu
+                    script: |
+                      #!/usr/bin/env bash
+                      echo "Good Morning!"
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: manual-kustomize-pipeline-binding
+spec:
+---
+apiVersion: tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: manual-kustomize-listener
+spec:
+  triggers:
+    - binding:
+        name: manual-kustomize-pipeline-binding
+      template:
+        name: kustomize-pipeline-template

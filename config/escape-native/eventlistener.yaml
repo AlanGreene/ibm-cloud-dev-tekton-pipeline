@@ -1,0 +1,10 @@
+apiVersion: tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: pr-escape-native-listener
+spec:
+  triggers:
+    - binding:
+        name: pr-escape-native-binding
+      template:
+        name: pr-escape-native-template

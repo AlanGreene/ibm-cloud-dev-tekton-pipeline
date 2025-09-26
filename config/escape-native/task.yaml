@@ -1,0 +1,145 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: pr-escape-native-start
+spec:
+  params:
+    - name: head-branch
+      description: source branch of the PR
+    - name: head-sha
+      description: commit id
+    - name: head-repo
+      description: the name of the PR's repo source
+    - name: base-branch
+      description: target branch of the PR
+    - name: base-repo
+      description: the name of the PR's repo target
+    - name: base-repo-name
+      description: name of the base repo
+    - name: base-repo-owner
+      description: owner of the base repo
+    - name: pr-url
+      description: PR url
+    - name: commit-timestamp
+      description: the timestamp of when the commit pushed
+
+  workspaces:
+    - name: artifacts
+      mountPath: /artifacts
+
+  volumes:
+    - name: config
+      emptyDir: {}
+    - name: environment-properties
+      configMap:
+        name: environment-properties
+    - name: secure-properties
+      secret:
+        secretName: secure-properties
+    - name: toolchain
+      configMap:
+        name: toolchain
+    - name: trigger-payload
+      configMap:
+        name: event-parameters
+
+  stepTemplate:
+    volumeMounts:
+      - name: trigger-payload
+        mountPath: /trigger-payload
+    env:
+      - name: WORKSPACE
+        value: "$(workspaces.artifacts.path)"
+      - name: TRIGGER_PAYLOAD
+        valueFrom:
+          configMapKeyRef:
+            name: event-parameters
+            key: eventBody
+      - name: PIPELINE_RUN_NAME
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.labels['tekton.dev/pipelineRun']
+      - name: PIPELINE_RUN_ID
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.annotations['devops.cloud.ibm.com/tekton-pipeline']
+      - name: PIPELINE_RUN_URL
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.annotations['devops.cloud.ibm.com/pipeline-run-url']
+      - name: BUILD_NUMBER
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.annotations['devops.cloud.ibm.com/build-number']
+      - name: PIPELINE_ID
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.annotations['devops.cloud.ibm.com/pipeline-id']
+      - name: TRIGGER_TYPE
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.annotations['devops.cloud.ibm.com/trigger-type']
+      - name: TRIGGER_NAME
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.annotations['devops.cloud.ibm.com/trigger-name']
+      - name: TRIGGERED_BY
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.annotations['devops.cloud.ibm.com/triggered-by']
+      - name: TRIGGER_PAYLOAD_PATH
+        value: "/trigger-payload/eventBody"
+      - name: TASK_NAME
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.labels['tekton.dev/pipelineTask']
+
+  steps:
+
+    - name: start
+      image: ubuntu
+      workingDir: $(workspaces.artifacts.path)
+      volumeMounts:
+        - name: config
+          mountPath: /config
+        - name: environment-properties
+          mountPath: /config/environment-properties
+        - name: secure-properties
+          mountPath: /config/secure-properties
+        - name: toolchain
+          mountPath: /toolchain
+      env:
+        - name: STEP_NAME
+          value: "start"
+      script: |
+        #!/bin/bash
+        set -x
+
+        echo "$(params.head-repo)"
+        echo "$(params.head-branch)"
+        echo "$(params.head-sha)"
+        echo "$(params.base-repo)"
+        echo "$(params.base-branch)"
+        echo "$(params.base-repo-owner)"
+        echo "$(params.base-repo-name)"
+
+        echo "$(params.head-branch)"
+        echo "$(params.base-branch)"
+        echo "$(params.head-sha)"
+        echo "$(params.base-repo)"
+        echo "$(params.commit-timestamp)"
+        echo "$(params.pr-url)"
+
+        echo "---"
+
+        echo "$TRIGGER_PAYLOAD"
+
+        echo "---"
+
+        cat $TRIGGER_PAYLOAD_PATH
+
+        echo "---"
+        apt-get update
+        apt-get install -y jq
+
+        cat $TRIGGER_PAYLOAD_PATH | jq .

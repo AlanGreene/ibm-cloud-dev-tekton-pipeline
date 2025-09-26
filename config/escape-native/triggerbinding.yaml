@@ -1,0 +1,26 @@
+apiVersion: tekton.dev/v1beta1
+kind: TriggerBinding
+metadata:
+  name: pr-escape-native-binding
+spec:
+  params:
+    - name: head-branch
+      value: $(body.pull_request.head.ref)
+    - name: head-sha
+      value: $(body.pull_request.head.sha)
+    - name: head-repo
+      value: $(body.pull_request.head.repo.html_url)
+
+    - name: base-branch
+      value: $(body.pull_request.base.ref)
+    - name: base-repo
+      value: $(body.pull_request.base.repo.html_url)
+    - name: base-repo-name
+      value: $(body.pull_request.base.repo.name)
+    - name: base-repo-owner
+      value: $(body.pull_request.base.repo.owner.login)
+
+    - name: commit-timestamp
+      value: $(body.pull_request.head.repo.pushed_at)
+    - name: pr-url
+      value: $(body.pull_request.url)

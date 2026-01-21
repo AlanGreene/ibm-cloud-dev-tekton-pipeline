@@ -31,9 +31,23 @@ spec:
         echo "prop5 = $(params.prop5)";
         echo "prop6 = $(params.prop6)";
         echo "prop7 = $(params.prop7)";
+        echo "=========================="
+        echo "bare"
+        echo $SECURE_PROP_SSH_PRIV;
+        echo "=========================="
+        echo "quoted"
+        echo "$SECURE_PROP_SSH_PRIV";
+        echo "=========================="
+        echo "interpolated in quoted string"
         echo "SECURE_PROP_SSH_PRIV = ${SECURE_PROP_SSH_PRIV}";
+        echo "=========================="
+        echo "base64 encoded"
         echo "${SECURE_PROP_SSH_PRIV}" | base64;
         echo "=========================="
+        echo "masking…"
+        echo "this is a secret value in a log line"
+        echo "::add-mask::a secret value"
+        echo "this is a secret value in a log line"
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
